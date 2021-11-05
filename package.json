@@ -1,0 +1,12 @@
+{
+  "name": "3780-software-security",
+  "version": "1.0.0",
+  "author": "Nico Stranquist",
+  "description": "",
+  "main": "task1.js",
+  "scripts": {
+    "start": "node task1.js"
+  },
+  "keywords": [],
+  "license": "ISC"
+}
