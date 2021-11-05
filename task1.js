@@ -10,8 +10,8 @@ The three password files should be as follows:
 A plaintext username password pair, stored in text in a file
 A username and a hashed password, stored in some format in the file
 A username, a salt and the result of the hashed (password + salt), stored in some format in the file
-
  */
+
 
 const USERNAME_LENGTH = 10
 const PASSWORD_LENGTH = 10
@@ -38,7 +38,7 @@ function main() {
   // 1. plaintext username/password pair, stored in text in the file
   // 2. username and a hashed password, stored in "some format" in the file
   // 3. username, salt, and result of hashed password (pw + salt), stored in "some format" in the file
-  
+
 }
 
 

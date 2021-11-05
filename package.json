@@ -8,5 +8,9 @@
     "start": "node task1.js"
   },
   "keywords": [],
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "md5": "^2.3.0"
+  }
 }
