@@ -29,7 +29,7 @@ function createFileV2(username, password) {
 
 function createFileV3(username, password, salt, salt_rounds) {
   // hash and salt password, write to file_3 in "some format" i.e. plaintext
-  let salt = bcrypt.genSalt(salt_rounds, function(err, salt) {
+  bcrypt.genSalt(salt_rounds, function(err, salt) {
     if(err) {
       console.log('ERROR: Could not salt password:', err)
       return;

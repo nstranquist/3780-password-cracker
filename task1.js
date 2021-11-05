@@ -12,22 +12,59 @@ A username and a hashed password, stored in some format in the file
 A username, a salt and the result of the hashed (password + salt), stored in some format in the file
  */
 
+const prompt = require('prompt-sync')()
+const fs = require('fs')
+// const FileUtils = require("./utils")
 
 const USERNAME_LENGTH = 10
 const PASSWORD_LENGTH = 10
 const SALT_LENGTH = 4 // 1 byte
 
 function main() {
-  // ask user if they would like to create an account or authenticate
+  let isValid = true;
 
+  // ask user if they would like to create an account or authenticate
+  do {
+    let choice = prompt("Would you like to (a) authenticate, or (b) create a new account? ");
+    console.log('choice:', choice)
+    if(choice !== "a" && choice !== "b") {
+      console.log("Error: Invalid format for your choice. Please select option 'a' or 'b' \n")
+      isValid = false
+    }
+    else isValid = true
+  } while(!isValid)
 
   // IF user wants to login:
   //    - accept their username, password, and verify it using 3 password files
   //    - put out success/error message for each of the 3 password file verifications
+  if(choice === "a") {
+    let username, password;
 
+    do {
+      username = prompt("Please enter a username: ");
+      
+      // validate
+
+    } while(!isValid)
+
+    do {
+      password = prompt("Please enter a password: ");
+      
+      // validate
+      
+    } while(!isValid)
+      
+    console.log('username:', username, 'password:', password)
+
+    // read from the 3 files and validate the data
+        
+  }
 
   // IF user wants to create an account:
   //    - create appropriate data in all 3 password files (will be used later to test parts 2 and 3)
+  else if(choice === "b") {
+    // create data... how i get this data??
+  }
 
   // Validation:
   // - usernames should be 10 alphabetic characters only
