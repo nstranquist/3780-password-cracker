@@ -51,9 +51,23 @@ function createFileV3(username, password, salt, salt_rounds) {
   })
 }
 
+const getCredentialsFromFile = (filename) => {
+  let file = fs.readFileSync(`./files/${filename}`, 'utf8')
+  if(!file) {
+    console.log("error: could not read from file")
+    return;
+  }
+
+  let lines = file.split('\n')
+  let username = lines[0]
+  let password = lines[1]
+
+  return {username, password}
+}
 
 module.exports = {
   createFileV1,
   createFileV2,
-  createFileV3
+  createFileV3,
+  getCredentialsFromFile
 }
