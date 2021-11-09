@@ -18,7 +18,7 @@ function createFileV1(username, password) {
 
 function createFileV2(username, password) {
   // hash password
-  let hash = md5(password);
+  let hash = generateHash(password)
 
   console.log('got hash:', hash);
 
@@ -27,7 +27,7 @@ function createFileV2(username, password) {
   fs.writeFileSync(filename, `${username}\n${hash}\n`);
 }
 
-function createFileV3(username, password, salt, salt_rounds) {
+function createFileV3(username, password, salt_rounds, returnHash = false) {
   // hash and salt password, write to file_3 in "some format" i.e. plaintext
   bcrypt.genSalt(salt_rounds, function(err, salt) {
     if(err) {
@@ -45,8 +45,14 @@ function createFileV3(username, password, salt, salt_rounds) {
       console.log('got hash:', hash)
 
       // write username and hashed password to file_3
-      let filename = file_3 + (Math.random() * 100000) + ".txt"
-      fs.writeFileSync(filename, `${username}\n${hash}\n`)
+      if(!returnHash) {
+        let filename = file_3 + (Math.random() * 100000) + ".txt"
+        fs.writeFileSync(filename, `${username}\n${hash}\n`)
+      }
+
+      if(returnHash)
+        return hash;
+      else return undefined;
     });
   })
 }
@@ -65,9 +71,14 @@ const getCredentialsFromFile = (filename) => {
   return {username, password}
 }
 
+const generateHash = plaintext => {
+  return md5(plaintext)
+}
+
 module.exports = {
   createFileV1,
   createFileV2,
   createFileV3,
-  getCredentialsFromFile
+  getCredentialsFromFile,
+  generateHash,
 }

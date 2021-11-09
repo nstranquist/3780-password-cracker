@@ -16,7 +16,7 @@ function main() {
     let pw_lower = prompt('Enter the minimum password length: ');
     let pw_upper = prompt('Enter the maximum password length: ');
 
-    if(!Number(pw_lower) || !Number(pw_upper)) {
+    if(!pw_lower || !Number(pw_lower) || !pw_upper || !Number(pw_upper)) {
       console.log('Please enter a number');
       isValid = false;
       continue;
@@ -42,7 +42,7 @@ function main() {
   do {
     let num_accounts_str = prompt('Enter the number of accounts to generate: ');
     
-    if(!Number(num_accounts_str)) {
+    if(!num_accounts_str || !Number(num_accounts_str)) {
       console.log('Please enter a valid number');
       isValid = false;
       continue;

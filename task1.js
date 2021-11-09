@@ -16,12 +16,12 @@ const prompt = require('prompt-sync')({
   sigint: true
 })
 const fs = require('fs')
-const { getCredentialsFromFile } = require('./utils')
+const { getCredentialsFromFile, generateHash, createFileV3 } = require('./utils')
 const bcrypt = require('bcrypt')
 
 const USERNAME_LENGTH = 10
 const PASSWORD_LENGTH = 10
-const SALT_LENGTH = 4 // 1 byte
+const SALT_ROUNDS = 1 // 1 byte
 
 function main() {
   let isValid = true;
@@ -46,12 +46,82 @@ function main() {
       username = prompt("Please enter a username: ");
       
       // validate
-      if(username.length !== 10) {
+      if(!username || username.length > USERNAME_LENGTH|| username.length <= 0) {
         console.log('error: username not correct length')
         isValid = false;
+        continue;
       }
-      else isValid = true;
 
+      // detect any numeric chars
+      let hasNumber = false;
+      for(let z=0; z<username.length; z++) {
+        if(Number(username[z])) {
+          hasNumber = true;
+          break;
+        }
+      }
+      
+      if(hasNumber) {
+        console.log('error: only aphabetic chars allowed in username')
+        isValid = false;
+        continue;
+      }
+      isValid = true;
+    } while(!isValid)
+
+    do {
+      password = prompt("Please enter a numeric password: (length " + PASSWORD_LENGTH + "): ");
+      
+      // validate
+      if(!password || !Number(password) || password.length !== PASSWORD_LENGTH) {
+        console.log('error: password is invalid')
+        isValid = false
+        continue;
+      }
+      isValid = true;
+    } while(!isValid)
+      
+    // read from the 3 files and validate the data
+    const file1 = getCredentialsFromFile("file1.txt")
+    const file2 = getCredentialsFromFile("file2.txt")
+    const file3 = getCredentialsFromFile("file3.txt")
+    
+    // validate the username / password with each of the files separately
+    
+    // file1
+    if(file1.username === username && file1.password === password) {
+      console.log('success: username and password match file1')
+    }
+    else console.log('validation 1: username and password do not match file1')
+
+    // file2
+    if(file2.username === username && file2.password === generateHash(password)) {
+      console.log('success: username and password match file2')
+    }
+    else console.log('validation 2: username and password do not match file2')
+
+    // file3
+    if(file3.username === username && file3.password === createFileV3(username, password, SALT_ROUNDS, true)) {
+      console.log('success: username and password match file3')
+    }
+    else console.log('validation 3: username and password do not match file3')
+  }
+
+  // IF user wants to create an account:
+  //    - create appropriate data in all 3 password files (will be used later to test parts 2 and 3)
+  else if(choice === "b") {
+    // create data... how i get this data??
+    do {
+      username = prompt("Please enter a username: ");
+      
+      // validate
+      if(username.length !== USERNAME_LENGTH) {
+        console.log('error: username not correct length')
+        isValid = false;
+        continue;
+      }
+      
+      isValid = true;
     } while(!isValid)
 
     do {
@@ -60,25 +130,15 @@ function main() {
       // validate
       if(password.length > PASSWORD_LENGTH) {
         console.log('error: password max length has been reached')
-        isValid = false
+        isValid = false;
+        continue
       }
-      else isValid = true;
       
+      isValid = true;
     } while(!isValid)
-      
-    // read from the 3 files and validate the data
-    let result = getCredentialsFromFile("file1.txt")
-    if(result.username === username && result.password === password) {
-      console.log("Success: username and password match")
-    }
-    else console.log("Error: username and password do not match")
-  }
 
-  // IF user wants to create an account:
-  //    - create appropriate data in all 3 password files (will be used later to test parts 2 and 3)
-  else if(choice === "b") {
-    // create data... how i get this data??
-    
+    // write to the 3 files
+
   }
 
   // Validation:
@@ -95,3 +155,7 @@ function main() {
 
 
 main();
+
+module.exports = {
+  SALT_ROUNDS
+}
