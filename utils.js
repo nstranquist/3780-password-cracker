@@ -21,35 +21,24 @@ function createFileV2(username, password) {
   fs.writeFileSync("./files/file2.txt", `${username}\n${hash}\n`);
 }
 
-function createFileV3(username, password, salt_rounds, returnHash = false) {
+async function createFileV3(username, password, salt_rounds, returnHash = false) {
   // hash and salt password, write to file_3 in "some format" i.e. plaintext
-  bcrypt.genSalt(salt_rounds, function(err, salt) {
-    if(err) {
-      console.log('ERROR: Could not salt password:', err)
-      return;
-    }
-    // console.log('got salt:', salt)
+  try {
+    let result_salt = await bcrypt.genSalt(salt_rounds)
+    console.log('bcrypt salt:', result_salt, 'len:', result_salt.length)
 
-    // hash and salt
-    bcrypt.hash(password, salt, function(err, hash) {
-      if(err) {
-        console.log("ERROR: Could not hash password:", err)
-        return;
-      }
-      // console.log('got hash:', hash)
+    let result_hash = await bcrypt.hash(password, result_salt)
+    console.log('bcrypt hash:', result_hash, 'len:', result_hash.length)
 
-      // write username and hashed password to file_3
-      if(!returnHash) {
-        fs.writeFileSync("./files/file3.txt", `${username}\n${hash}\n`)
-      }
-
-      if(returnHash)
-        return hash;
-      else return undefined;
-    });
-  })
-
-  return undefined;
+    if(returnHash)
+      return result_hash
+      
+    // else write username and hashed password to file_3
+    fs.writeFileSync("./files/file3.txt", `${username}\n${result_hash}\n`)
+  } catch (error) {
+    console.log('error using bcrypt to generate hash and salt:', error)
+    throw error;
+  }
 }
 
 const getCredentialsFromFile = (filename) => {
@@ -67,7 +56,29 @@ const getCredentialsFromFile = (filename) => {
 }
 
 const generateHash = plaintext => {
-  return md5(plaintext)
+  let hash = md5(plaintext)
+  // console.log("md5 hash:", hash)
+  return hash
+}
+
+const getPasswordWithSalt = async (plaintext, salt) => {
+  try {
+    const result_hash = await bcrypt.hash(plaintext, salt)
+
+    return result_hash
+  }
+  catch (error) {
+    console.log('error getting password with salt:', error)
+  }
+}
+
+const generateCredentialString = (size) => {
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  let username = '';
+  for(let i=0; i<size; i++) {
+    username += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return username;
 }
 
 module.exports = {
@@ -76,4 +87,6 @@ module.exports = {
   createFileV3,
   getCredentialsFromFile,
   generateHash,
+  getPasswordWithSalt,
+  generateCredentialString
 }

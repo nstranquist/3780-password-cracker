@@ -5,8 +5,11 @@ const prompt = require('prompt-sync')({
   sigint: true
 });
 const fs = require('fs');
+const { generateHash, createFileV3, generateCredentialString } = require('./utils')
 
-function main() {
+const SALT_ROUNDS = 1
+
+async function main() {
   let password_lower, password_upper; // min/max pw lengths to try
   let num_accounts;
   let isValid = false;
@@ -100,22 +103,27 @@ function main() {
         let temp_pw = generateCredentialString(a);
         console.log('temp pw:', temp_pw, "\n")
 
+        if(!temp_user || !temp_pw) continue;
+
+        let formatted_pw;
+        if(b == 0) formatted_pw = temp_pw;
+        else if(b == 1) {
+          // hash the temp_pw
+          formatted_pw = generateHash(temp_pw)
+        }
+        else if(b == 2) {
+          // hash and salt the temp_pw
+          formatted_pw = await createFileV3(temp_user, temp_pw, SALT_ROUNDS, true)
+          console.log('formated pw:', formatted_pw)
+        }
+
         // write temp_user and temp_pw to file
-        fs.writeFileSync(dirname + subdirname + "/" + b.toString() + "/" + i.toString() + ".txt", `${temp_user}\n${temp_pw}\n`, {
+        fs.writeFileSync(dirname + subdirname + "/" + b.toString() + "/" + i.toString() + ".txt", `${temp_user}\n${formatted_pw}\n`, {
           flag: "w",
         })
       }
     }
   }
-}
-
-const generateCredentialString = (size) => {
-  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-  let username = '';
-  for(let i=0; i<size; i++) {
-    username += alphabet[Math.floor(Math.random() * alphabet.length)];
-  }
-  return username;
 }
 
 main()

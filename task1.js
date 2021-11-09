@@ -16,14 +16,14 @@ const prompt = require('prompt-sync')({
   sigint: true
 })
 const fs = require('fs')
-const { getCredentialsFromFile, generateHash, createFileV1, createFileV2, createFileV3 } = require('./utils')
+const { getCredentialsFromFile, generateHash, createFileV1, createFileV2, createFileV3, getPasswordWithSalt } = require('./utils')
 const bcrypt = require('bcrypt')
 
 const USERNAME_LENGTH = 10
 const PASSWORD_LENGTH = 10
 const SALT_ROUNDS = 1 // 1 byte
 
-function main() {
+async function main() {
   let isValid = true;
   let choice, username, password;
 
@@ -101,7 +101,26 @@ function main() {
     else console.log('validation 2: username and password do not match file2')
 
     // file3
-    if(file3.username === username && file3.password === createFileV3(username, password, SALT_ROUNDS, true)) {
+    // cannot use the createFileV3 to create this hash, unless I modify that code to be less useful
+    // I will instead manually parse the salt, then manually run the same bcrypt algorithm to see if I can match
+    let createdPassword;
+    if(SALT_ROUNDS !== 1) {
+      console.log("warning: hash + salt auth will not work unless SALT_ROUNDS is set to 1")
+      // assign password to the old method, which will surely generate a different salt from what was used to salt the password originally
+      createdPassword = createFileV3(username, password, SALT_ROUNDS, true)
+    }
+    else {
+      console.log('len:', file3.password.length)
+      let salt_length = file3.password.length / 2
+      console.log('salt len:', salt_length)
+
+      let parsedSalt = file3.password.slice(0, salt_length-1)
+      console.log('parsed salt:', parsedSalt, 'len:', parsedSalt.length)
+      
+      createdPassword = await getPasswordWithSalt(password, parsedSalt)
+      console.log('created password:', createdPassword)
+    }
+      if(file3.username === username && file3.password === createdPassword) {
       console.log('success: username and password match file3')
     }
     else console.log('validation 3: username and password do not match file3')
@@ -130,7 +149,6 @@ function main() {
   // 3. username, salt, and result of hashed password (pw + salt), stored in "some format" in the file
 
 }
-
 
 main();
 

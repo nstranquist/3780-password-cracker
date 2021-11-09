@@ -1,6 +1,7 @@
 const prompt = require('prompt-sync')({ sigint: true })
 const fs = require('fs');
-const { getCredentialsFromFile, generateHash, createFileV3 } = require('./utils')
+const bcrypt = require('bcrypt')
+const { getCredentialsFromFile, generateHash, createFileV3, getPasswordWithSalt } = require('./utils')
 
 const SALT_ROUNDS = 1
 
@@ -110,8 +111,12 @@ const bruteForce = async (password, max_size, version=1) => {
         hashed_str = str;
       else if(version === 1)
         hashed_str = generateHash(str);
-      else if(version === 2)
-        hashed_str = await createFileV3("_", str, SALT_ROUNDS, true)
+      else if(version === 2) {
+        let bcrypt_salt = await bcrypt.genSalt(SALT_ROUNDS)
+        hashed_str = await getPasswordWithSalt(str, bcrypt_salt)
+        // console.log('got hashed password:', hashed_str)
+        // hashed_str = await createFileV3("_", str, SALT_ROUNDS, true)
+      }
       if(hashed_str === password) {
         console.log("MATCH:", password, 'plaintext:', str)
         currentPassword = password;
