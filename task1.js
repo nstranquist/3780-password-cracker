@@ -16,7 +16,7 @@ const prompt = require('prompt-sync')({
   sigint: true
 })
 const fs = require('fs')
-const { getCredentialsFromFile, generateHash, createFileV3 } = require('./utils')
+const { getCredentialsFromFile, generateHash, createFileV1, createFileV2, createFileV3 } = require('./utils')
 const bcrypt = require('bcrypt')
 
 const USERNAME_LENGTH = 10
@@ -41,52 +41,52 @@ function main() {
   // IF user wants to login:
   //    - accept their username, password, and verify it using 3 password files
   //    - put out success/error message for each of the 3 password file verifications
+  do {
+    username = prompt("Please enter a username: ");
+    
+    // validate
+    if(!username || username.length > USERNAME_LENGTH|| username.length <= 0) {
+      console.log('error: username not correct length')
+      isValid = false;
+      continue;
+    }
+
+    // detect any numeric chars
+    let hasNumber = false;
+    for(let z=0; z<username.length; z++) {
+      if(Number(username[z])) {
+        hasNumber = true;
+        break;
+      }
+    }
+    
+    if(hasNumber) {
+      console.log('error: only aphabetic chars allowed in username')
+      isValid = false;
+      continue;
+    }
+    isValid = true;
+  } while(!isValid)
+
+  do {
+    password = prompt("Please enter a numeric password: (length " + PASSWORD_LENGTH + "): ");
+    
+    // validate
+    if(!password || !Number(password) || password.length !== PASSWORD_LENGTH) {
+      console.log('error: password is invalid')
+      isValid = false
+      continue;
+    }
+    isValid = true;
+  } while(!isValid)
+
+
   if(choice === "a") {
-    do {
-      username = prompt("Please enter a username: ");
-      
-      // validate
-      if(!username || username.length > USERNAME_LENGTH|| username.length <= 0) {
-        console.log('error: username not correct length')
-        isValid = false;
-        continue;
-      }
-
-      // detect any numeric chars
-      let hasNumber = false;
-      for(let z=0; z<username.length; z++) {
-        if(Number(username[z])) {
-          hasNumber = true;
-          break;
-        }
-      }
-      
-      if(hasNumber) {
-        console.log('error: only aphabetic chars allowed in username')
-        isValid = false;
-        continue;
-      }
-      isValid = true;
-    } while(!isValid)
-
-    do {
-      password = prompt("Please enter a numeric password: (length " + PASSWORD_LENGTH + "): ");
-      
-      // validate
-      if(!password || !Number(password) || password.length !== PASSWORD_LENGTH) {
-        console.log('error: password is invalid')
-        isValid = false
-        continue;
-      }
-      isValid = true;
-    } while(!isValid)
-      
-    // read from the 3 files and validate the data
+    // read from the 3 files and validate the username/password data
     const file1 = getCredentialsFromFile("file1.txt")
     const file2 = getCredentialsFromFile("file2.txt")
     const file3 = getCredentialsFromFile("file3.txt")
     
-    // validate the username / password with each of the files separately
     
     // file1
     if(file1.username === username && file1.password === password) {
@@ -110,34 +110,12 @@ function main() {
   // IF user wants to create an account:
   //    - create appropriate data in all 3 password files (will be used later to test parts 2 and 3)
   else if(choice === "b") {
-    // create data... how i get this data??
-    do {
-      username = prompt("Please enter a username: ");
-      
-      // validate
-      if(username.length !== USERNAME_LENGTH) {
-        console.log('error: username not correct length')
-        isValid = false;
-        continue;
-      }
-      
-      isValid = true;
-    } while(!isValid)
+    // create data in the 3 files
+    createFileV1(username, password)
 
-    do {
-      password = prompt("Please enter a password: (length " + PASSWORD_LENGTH + "): ");
-      
-      // validate
-      if(password.length > PASSWORD_LENGTH) {
-        console.log('error: password max length has been reached')
-        isValid = false;
-        continue
-      }
-      
-      isValid = true;
-    } while(!isValid)
+    createFileV2(username, password)
 
-    // write to the 3 files
+    createFileV3(username, password, SALT_ROUNDS)
 
   }
 
