@@ -5,7 +5,9 @@
   "description": "",
   "main": "task1.js",
   "scripts": {
-    "start": "node task1.js"
+    "start": "node task1.js",
+    "task2": "node task2.js",
+    "task3": "node task3.js"
   },
   "keywords": [],
   "license": "ISC",

@@ -15,7 +15,7 @@ function createFileV2(username, password) {
   // hash password
   let hash = generateHash(password)
 
-  console.log('got hash:', hash);
+  // console.log('got hash:', hash);
 
   // write to file_2 in "some format" i.e. plaintext
   fs.writeFileSync("./files/file2.txt", `${username}\n${hash}\n`);
@@ -28,7 +28,7 @@ function createFileV3(username, password, salt_rounds, returnHash = false) {
       console.log('ERROR: Could not salt password:', err)
       return;
     }
-    console.log('got salt:', salt)
+    // console.log('got salt:', salt)
 
     // hash and salt
     bcrypt.hash(password, salt, function(err, hash) {
@@ -36,7 +36,7 @@ function createFileV3(username, password, salt_rounds, returnHash = false) {
         console.log("ERROR: Could not hash password:", err)
         return;
       }
-      console.log('got hash:', hash)
+      // console.log('got hash:', hash)
 
       // write username and hashed password to file_3
       if(!returnHash) {
@@ -48,6 +48,8 @@ function createFileV3(username, password, salt_rounds, returnHash = false) {
       else return undefined;
     });
   })
+
+  return undefined;
 }
 
 const getCredentialsFromFile = (filename) => {

@@ -69,10 +69,10 @@ function main() {
   } while(!isValid)
 
   do {
-    password = prompt("Please enter a numeric password: (length " + PASSWORD_LENGTH + "): ");
+    password = prompt("Please enter a numeric password: (max length " + PASSWORD_LENGTH + "): ");
     
     // validate
-    if(!password || !Number(password) || password.length !== PASSWORD_LENGTH) {
+    if(!password || !Number(password) || password.length > PASSWORD_LENGTH || password.length < 1) {
       console.log('error: password is invalid')
       isValid = false
       continue;
